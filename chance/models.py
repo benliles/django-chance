@@ -1,6 +1,13 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
+
+def validate_choice_name(value):
+    if value and value.lower() in ('name', 'location', 'starts', 'ends',
+        'registration_limit'):
+        raise ValidationError(u'%s is a reserved field name, please choose ' \
+                'a different one')
 
 class Event(models.Model):
     name = models.CharField(max_length=255)
@@ -25,13 +32,17 @@ class EventFee(models.Model):
 class EventChoice(models.Model):
     event = models.ForeignKey(Event, related_name='choices')
     order = models.PositiveIntegerField(default=0)
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=32,
+            validators=[validate_choice_name])
+    label = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     required = models.BooleanField(default=False)
     allow_multiple = models.BooleanField(default=False)
 
     class Meta:
         ordering = ('order',)
+        unique_together = ('name', 'event',)
+        
 
     def __unicode__(self):
         return '%s at %s' % (self.name, self.event.name,)
@@ -39,7 +50,6 @@ class EventChoice(models.Model):
 class EventChoiceOption(models.Model):
     choice = models.ForeignKey(EventChoice, related_name='options')
     order = models.PositiveIntegerField(default=0)
-    value = models.CharField(max_length=32)
     display = models.CharField(max_length=128)
     enabled = models.BooleanField(default=True)
 

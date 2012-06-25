@@ -1,0 +1,10 @@
+<html>
+    <body>
+        <h1>Events</h1>
+        <ul>
+            {% for event in object_list %}
+            <li><a href="{% url chance_event pk=event.pk %}">{{ event }}</a></li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>

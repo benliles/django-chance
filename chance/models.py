@@ -56,10 +56,15 @@ class EventChoiceOption(models.Model):
     class Meta:
         ordering = ('order',)
 
+    def __unicode__(self):
+        return self.display
+
 class Registration(models.Model):
     event = models.ForeignKey(Event, related_name='registrations')
     attendee_name = models.CharField(max_length=255)
     attendee_email = models.EmailField()
+    created = models.DateTimeField(auto_now_add=True, editable=False,
+            null=True, blank=True)
     fee_option = models.ForeignKey(EventFee, related_name='+', null=True,
             blank=True)
     paid = models.BooleanField(default=False)

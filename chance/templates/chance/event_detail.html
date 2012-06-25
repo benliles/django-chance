@@ -1,0 +1,9 @@
+<html>
+    <body>
+        <h1>{{ object.name }}</h1>
+        <h2>{{ object.starts }} - {{ object.ends }}</h2>
+        <p>{{ object.registrations.count }} of {{ object.registration_limit }}
+        seats taken</p>
+        <a href="{% url chance_event_registration event=object.pk %}">Register</a>
+    </body>
+</html>

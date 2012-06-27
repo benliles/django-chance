@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -61,6 +62,7 @@ class EventChoiceOption(models.Model):
 
 class Registration(models.Model):
     event = models.ForeignKey(Event, related_name='registrations')
+    owner = models.ForeignKey(User, related_name='+', null=True, blank=True)
     attendee_name = models.CharField(max_length=255)
     attendee_email = models.EmailField()
     created = models.DateTimeField(auto_now_add=True, editable=False,
@@ -68,6 +70,17 @@ class Registration(models.Model):
     fee_option = models.ForeignKey(EventFee, related_name='+', null=True,
             blank=True)
     paid = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ('created',)
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('chance_registration', (), {'pk': self.pk})
+
+    def __unicode__(self):
+        return u'Registration for %s by %s' % (self.event.name,
+                self.attendee_name,)
 
 class EventChoiceSelection(models.Model):
     registration = models.ForeignKey(Registration, related_name='selections')

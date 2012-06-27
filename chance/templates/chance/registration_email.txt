@@ -1,0 +1,3 @@
+{{ registration.attendee_name }},
+
+You have been registered for {{ event.name }}, {{ event.starts }}-{{ event.ends }}.

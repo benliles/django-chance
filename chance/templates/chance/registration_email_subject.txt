@@ -1,0 +1,1 @@
+You have been registered for {{ event.name }}

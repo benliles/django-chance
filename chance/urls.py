@@ -12,4 +12,6 @@ urlpatterns = patterns('',
         name='chance_event'),
     url(r'^(?P<event>\d+)/register/', views.CreateRegistrationView.as_view(),
         name='chance_event_registration'),
+    url(r'^registration/(?P<pk>\d+)/', views.RegistrationDetailView.as_view(),
+        name='chance_registration'),
 )

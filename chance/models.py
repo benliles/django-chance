@@ -76,7 +76,8 @@ class Registration(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('chance_registration', (), {'pk': self.pk})
+        return ('chance_registration', (), {'pk': self.pk, 'event':
+            self.event.pk})
 
     def __unicode__(self):
         return u'Registration for %s by %s' % (self.event.name,

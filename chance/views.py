@@ -49,6 +49,9 @@ class CreateRegistrationView(RegistrationFormMixin, edit.CreateView):
 class UpdateRegistrationView(RegistrationFormMixin, edit.UpdateView):
     pass
 
+class DeleteRegistrationView(RegistrationFormMixin, edit.DeleteView):
+    pass
+
 class RegistrationDetailView(detail.DetailView):
     model = Registration
 

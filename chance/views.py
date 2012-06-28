@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import permalink
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import edit, detail
@@ -45,7 +45,15 @@ class RegistrationFormMixin(object):
         return result
 
 class CreateRegistrationView(RegistrationFormMixin, edit.CreateView):
-    pass
+    def get(self, request, *args, **kwargs):
+        response = super(CreateRegistrationView, self).get(request, *args,
+                **kwargs)
+        if not self.event.registration_open:
+            messages.error(request, u'%s registration is no longer available' %
+                    (self.event.name,))
+            return HttpResponseRedirect(self.event.get_absolute_url())
+        return response
+
 
 class UpdateRegistrationView(RegistrationFormMixin, edit.UpdateView):
     pass

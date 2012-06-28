@@ -1,1 +1,1 @@
-You have been registered for {{ event.name }}
+You have been registered for {{ object.event.name }}

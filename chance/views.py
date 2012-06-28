@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import permalink
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
@@ -50,7 +51,10 @@ class UpdateRegistrationView(RegistrationFormMixin, edit.UpdateView):
     pass
 
 class DeleteRegistrationView(RegistrationFormMixin, edit.DeleteView):
-    pass
+
+    @permalink
+    def get_success_url(self):
+        return ('chance_event', (), {'pk': self.object.event.pk},)
 
 class RegistrationDetailView(detail.DetailView):
     model = Registration

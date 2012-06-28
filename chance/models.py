@@ -21,6 +21,11 @@ class Event(models.Model):
     def __unicode__(self):
         return self.name
 
+    @property
+    def registration_open(self):
+        return self.registration_limit == 0 or \
+            self.registrations.count() < self.registration_limit
+
 class EventFee(models.Model):
     event = models.ForeignKey(Event, related_name='fee_options')
     available = models.BooleanField(default=True)
@@ -43,7 +48,7 @@ class EventChoice(models.Model):
     class Meta:
         ordering = ('order',)
         unique_together = ('name', 'event',)
-        
+
 
     def __unicode__(self):
         return '%s at %s' % (self.name, self.event.name,)

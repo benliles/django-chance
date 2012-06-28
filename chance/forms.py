@@ -44,6 +44,14 @@ class RegistrationForm(forms.ModelForm):
             self.fields[choice.name] = field(label=choice.label,
                     help_text=choice.description, required=choice.required,
                     queryset=choice.options.filter(enabled=True), widget=widget)
+            if self.instance:
+                if not choice.name in self.initial:
+                    selections = self.instance.selections.filter(option__choice=choice)
+
+                    if choice.allow_multiple:
+                        self.initial[choice.name] = [s.option for s in selections]
+                    elif selections.count() == 1:
+                        self.initial[choice.name] = selections.get().option
 
     def save(self, **kwargs):
         result = super(RegistrationForm, self).save()

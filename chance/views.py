@@ -46,14 +46,22 @@ class RegistrationFormMixin(object):
 
 class CreateRegistrationView(RegistrationFormMixin, edit.CreateView):
     def get(self, request, *args, **kwargs):
-        response = super(CreateRegistrationView, self).get(request, *args,
-                **kwargs)
+        self.event = get_object_or_404(Event, pk=kwargs.get('event', None))
         if not self.event.registration_open:
             messages.error(request, u'%s registration is no longer available' %
                     (self.event.name,))
             return HttpResponseRedirect(self.event.get_absolute_url())
-        return response
+        return super(CreateRegistrationView, self).get(request, *args,
+                **kwargs)
 
+    def post(self, request, *args, **kwargs):
+        self.event = get_object_or_404(Event, pk=kwargs.get('event', None))
+        if not self.event.registration_open:
+            messages.error(request, u'%s registration is no longer available' %
+                    (self.event.name,))
+            return HttpResponseRedirect(self.event.get_absolute_url())
+        return super(CreateRegistrationView, self).post(request, *args,
+                **kwargs)
 
 class UpdateRegistrationView(RegistrationFormMixin, edit.UpdateView):
     pass

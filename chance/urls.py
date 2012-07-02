@@ -18,4 +18,7 @@ urlpatterns = patterns('',
         name='chance_registration_update'),
     url(r'^(?P<event>\d+)/register/(?P<pk>\d+)/delete/$', views.DeleteRegistrationView.as_view(),
         name='chance_registration_delete'),
+    url(r'^(?P<event>\d+)/registrations/$',
+        views.RegistrationListView.as_view(),
+        name='chance_registrations'),
 )

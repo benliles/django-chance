@@ -25,5 +25,6 @@ Add ``chance`` to the ``INSTALLED_APPS`` list in your project's
 What's Inside
 -------------
 
-Nothing yet.
+Admin integration for creating and managing events. Views for displaying
+events and managing registration.
 

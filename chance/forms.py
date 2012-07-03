@@ -24,6 +24,7 @@ class RegistrationForm(forms.ModelForm):
 
         self.add_event_fields()
         self.fields['event'] = InlineForeignKeyField(self.event_object)
+        self.fields['fee_option'].queryset = self.event_object.fee_options.filter(available=True)
 
         if self.event_object.fee_options.count() > 0:
             self.fields['fee_option'].empty_label = None

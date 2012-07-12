@@ -17,13 +17,19 @@ class Event(models.Model):
     ends = models.DateTimeField()
     registration_limit = models.PositiveSmallIntegerField(null=True,
             blank=True, default=0)
+    url = models.URLField(verify_exists=False, null=True, blank=True)
+    registration_redirect = models.URLField(verify_exists=False, null=True,
+            blank=True)
 
     def __unicode__(self):
         return self.name
 
     @models.permalink
     def get_absolute_url(self):
-        return ('chance_event', (), {'pk': self.pk})
+        if self.url:
+            return ('chance_event', (), {'url': self.url})
+        else:
+            return ('chance_event', (), {'pk': self.pk})
 
     @property
     def registration_open(self):

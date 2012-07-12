@@ -1,7 +1,8 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import Resolver404
 from django.db.models import permalink
-from django.http import HttpResponseForbidden, HttpResponseRedirect
+from django.http import HttpResponseForbidden, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views import generic
@@ -10,6 +11,16 @@ from chance.forms import RegistrationForm
 from chance.models import Event, Registration
 
 
+
+class EventView(generic.DetailView):
+    model = Event
+
+    def get_object(self, queryset=None):
+        try:
+            return super(EventView, self).get_object(queryset)
+        except Http404, e:
+            if self.kwargs.get('slug', None):
+                raise Resolver404()
 
 class EventMixin(object):
     def get(self, request, *args, **kwargs):

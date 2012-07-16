@@ -42,7 +42,7 @@ class RegistrationAdmin(ModelAdmin):
     list_filter = ('event', 'paid',)
 
 class TalkAdmin(ModelAdmin):
-    list_filter('event', 'accepted',)
+    list_filter = ('event', 'accepted',)
 
 admin.site.register(Event, EventAdmin)
 admin.site.register(EventChoice, EventChoiceAdmin)

@@ -6,7 +6,7 @@ except ImportError:
 from django.contrib import admin
 
 from chance.models import (Event, EventFee, EventChoice, EventChoiceOption,
-        Registration, EventChoiceSelection)
+        Registration, EventChoiceSelection, Talk)
 
 
 
@@ -41,7 +41,11 @@ class RegistrationAdmin(ModelAdmin):
     exclude = ('event',)
     list_filter = ('event', 'paid',)
 
+class TalkAdmin(ModelAdmin):
+    list_filter('event', 'accepted',)
+
 admin.site.register(Event, EventAdmin)
 admin.site.register(EventChoice, EventChoiceAdmin)
 admin.site.register(Registration, RegistrationAdmin)
+admin.site.register(Talk, TalkAdmin)
 

@@ -104,6 +104,13 @@ class Talk(models.Model):
     description = models.TextField(blank=True, null=True)
     accepted = models.NullBooleanField(default=None)
 
+    def __unicode__(self):
+        return self.title
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('chance:talk', (), {'pk': self.pk, 'event': self.event.pk})
+
 
 try:
     import reversion

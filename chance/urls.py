@@ -21,4 +21,8 @@ urlpatterns = patterns('',
     url(r'^(?P<event>\d+)/registrations/$',
         views.RegistrationListView.as_view(),
         name='chance_registrations'),
+    url(r'^(?P<event>\d+)/talks/$', views.TalkListView.as_view(),
+        name='talks'),
+    url(r'^(?P<event>\d+)/talks/(?P<pk>\d+)/$', views.TalkDetailView.as_view(),
+        name='talk'),
 )

@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import permalink
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -7,7 +7,7 @@ from django.utils.decorators import method_decorator
 from django.views import generic
 
 from chance.forms import RegistrationForm
-from chance.models import Event, Registration
+from chance.models import Event, Registration, Talk
 
 
 
@@ -123,5 +123,9 @@ class RegistrationListView(EventMixin, generic.ListView):
             return qs.filter(owner=self.request.user)
         return qs.none()
 
+class TalkListView(EventMixin, generic.ListView):
+    model = Talk
 
+class TalkDetailView(EventMixin, generic.DetailView):
+    model = Talk
 

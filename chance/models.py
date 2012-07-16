@@ -97,9 +97,17 @@ class EventChoiceSelection(models.Model):
     option = models.ForeignKey(EventChoiceOption, related_name='+')
 
 
+class Talk(models.Model):
+    event = models.ForeignKey(Event, related_name='+')
+    title = models.CharField(max_length=255)
+    presenter = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    accepted = models.NullBooleanField(default=None)
+
+
 try:
     import reversion
-    
+
     reversion.register(EventChoiceOption)
     reversion.register(EventChoice, follow=['options'])
     reversion.register(EventFee)
@@ -108,6 +116,7 @@ try:
 
     reversion.register(EventChoiceSelection)
     reversion.register(Registration, follow=['selections'])
+    reversion.register(Talk)
 except ImportError:
     pass
 

@@ -3,7 +3,7 @@ from logging import getLogger
 from django import forms
 from django.forms.models import InlineForeignKeyField
 
-from chance.models import Registration, Event, EventChoiceSelection
+from chance.models import Registration, Event, EventChoiceSelection, Talk
 
 
 
@@ -32,7 +32,7 @@ class RegistrationForm(forms.ModelForm):
         else:
             del self.fields['fee_option']
 
-    
+
     def add_event_fields(self):
         for choice in self.event_object.choices.all():
             if choice.allow_multiple:
@@ -69,7 +69,7 @@ class RegistrationForm(forms.ModelForm):
                 new = set(self.cleaned_data[field.name])
                 field_selections.filter(option__in=list(current -
                     new)).delete()
-                    
+
                 for add in new - current:
                     EventChoiceSelection.objects.create(registration=self.instance,
                             option=add)
@@ -83,7 +83,8 @@ class RegistrationForm(forms.ModelForm):
                 else:
                     self.instance.selections.filter(option__choice=field).delete()
 
-
-
-    
+class TalkSubmissionForm(forms.ModelForm):
+    class Meta:
+        model = Talk
+        fields = ('title', 'presenter', 'description')
 

@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views import generic
 
-from chance.forms import RegistrationForm
+from chance.forms import RegistrationForm, TalkSubmissionForm
 from chance.models import Event, Registration, Talk
 
 
@@ -28,16 +28,15 @@ class EventMixin(object):
         return kwargs
 
 
-class RegistrationFormMixin(EventMixin):
-    form_class = RegistrationForm
-    model = Registration
-
-
+class EventRelatedFormMixin(EventMixin):
     def get_form_kwargs(self):
-        kwargs = super(RegistrationFormMixin, self).get_form_kwargs()
+        kwargs = super(EventRelatedFormMixin, self).get_form_kwargs()
         kwargs['event'] = self.event
         return kwargs
 
+class RegistrationFormMixin(EventRelatedFormMixin):
+    form_class = RegistrationForm
+    model = Registration
 
     def form_valid(self, form):
         result = super(RegistrationFormMixin, self).form_valid(form)
@@ -128,4 +127,12 @@ class TalkListView(EventMixin, generic.ListView):
 
 class TalkDetailView(EventMixin, generic.DetailView):
     model = Talk
+
+class TalkSubmissionCreateView(EventRelatedFormMixin, generic.CreateView):
+    model = Talk
+    form = TalkSubmissionForm
+
+class TalkSubmissionUpdateView(EventRelatedFormMixin, generic.UpdateView):
+    model = Talk
+    form = TalkSubmissionForm
 

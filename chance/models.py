@@ -103,6 +103,7 @@ class Talk(models.Model):
     presenter = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     accepted = models.NullBooleanField(default=None)
+    owner = models.ForeignKey(User, related_name='+', null=True, blank=True)
 
     def __unicode__(self):
         return self.title

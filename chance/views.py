@@ -130,9 +130,38 @@ class TalkDetailView(EventMixin, generic.DetailView):
 
 class TalkSubmissionCreateView(EventRelatedFormMixin, generic.CreateView):
     model = Talk
-    form = TalkSubmissionForm
+    form_class = TalkSubmissionForm
+
+    def form_valid(self, form):
+        result = super(TalkSubmissionCreateView, self).form_valid(form)
+        if self.request.user.is_authenticated():
+            self.object.owner = self.request.user
+            self.object.save()
+        messages.info(self.request, 'Talk submitted.')
+        return result
 
 class TalkSubmissionUpdateView(EventRelatedFormMixin, generic.UpdateView):
     model = Talk
-    form = TalkSubmissionForm
+    form_class = TalkSubmissionForm
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.request.user.has_perm('change.change_talk') \
+            and not self.request.user == self.object.owner:
+                return HttpResponseForbidden()
+        return super(TalkSubmissionUpdateView, self).get(request, *args,
+                **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.request.user.has_perm('change.change_talk') \
+            and not self.request.user == self.object.owner:
+                return HttpResponseForbidden()
+        return super(TalkSubmissionUpdateView, self).post(request, *args,
+                **kwargs)
+
+        def form_valid(self, form):
+            result = super(TalkSubmissionUpdateView, self).form_valid(form)
+            messages.info(self.request, 'Talk updated.')
+            return result
 

@@ -1,4 +1,5 @@
 from django.conf.urls.defaults import *
+from django.contrib.auth.decorators import login_required
 from django.views import generic
 
 
@@ -25,4 +26,10 @@ urlpatterns = patterns('',
         name='talks'),
     url(r'^(?P<event>\d+)/talks/(?P<pk>\d+)/$', views.TalkDetailView.as_view(),
         name='talk'),
+    url(r'^(?P<event>\d+)/talks/add/$',
+        login_required(views.TalkSubmissionCreateView.as_view()),
+        name='submit_talk'),
+    url(r'^(?P<event>\d+)/talks/(?P<pk>\d+)/update/$',
+        login_required(views.TalkSubmissionUpdateView.as_view()),
+        name='update_talk')
 )

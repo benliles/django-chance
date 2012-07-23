@@ -15,7 +15,7 @@ class RegistrationForm(forms.ModelForm):
         model = Registration
         fields = ('event', 'attendee_name', 'attendee_email',
                 'fee_option')
-    
+
     def __init__(self, *args, **kwargs):
         self.event_object = kwargs.pop('event')
         assert isinstance(self.event_object, Event)
@@ -86,5 +86,14 @@ class RegistrationForm(forms.ModelForm):
 class TalkSubmissionForm(forms.ModelForm):
     class Meta:
         model = Talk
-        fields = ('title', 'presenter', 'description')
+        fields = ('event', 'title', 'presenter', 'description')
+
+    def __init__(self, *args, **kwargs):
+        self.event_object = kwargs.pop('event', None)
+        if self.event_object is not None:
+            assert isinstance(self.event_object, Event)
+
+        super(TalkSubmissionForm, self).__init__(*args, **kwargs)
+        if self.event_object is not None:
+            self.fields['event'] = InlineForeignKeyField(self.event_object)
 

@@ -99,7 +99,7 @@ class EventChoiceSelection(models.Model):
 
 class Talk(models.Model):
     event = models.ForeignKey(Event, related_name='+')
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, db_index=True)
     presenter = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     accepted = models.NullBooleanField(default=None)
@@ -111,6 +111,9 @@ class Talk(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ('chance:talk', (), {'pk': self.pk, 'event': self.event.pk})
+
+    class Meta:
+        ordering = ('event', 'title',)
 
 
 try:

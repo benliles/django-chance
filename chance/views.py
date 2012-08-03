@@ -1,15 +1,25 @@
+from decimal import Decimal
+from logging import getLogger
+from urllib2 import urlopen
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.conf import settings
 from django.db.models import permalink
-from django.http import HttpResponseForbidden, HttpResponseRedirect
+from django.http import (HttpResponseForbidden, HttpResponseRedirect, 
+                         HttpResponse, Http404, HttpResponseBadRequest)
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
+from django.utils.simplejson import load
 from django.views import generic
 
-from chance.forms import RegistrationForm, TalkSubmissionForm
-from chance.models import Event, Registration, Talk
+from chance.forms import (RegistrationForm, TalkSubmissionForm,
+                            TransactionConfirmForm)
+from chance.models import Event, Registration, Talk, Transaction
 
 
+
+log = getLogger('chance.views')
 
 class EventMixin(object):
     def get(self, request, *args, **kwargs):
@@ -164,4 +174,85 @@ class TalkSubmissionUpdateView(EventRelatedFormMixin, generic.UpdateView):
             result = super(TalkSubmissionUpdateView, self).form_valid(form)
             messages.info(self.request, 'Talk updated.')
             return result
+
+class TransactionConfirmView(generic.CreateView):
+    models = Transaction
+    form_class = TransactionConfirmForm
+    template_name = 'chance/transaction_confirm.html'
+
+    def get_registrations(self, request):
+        return Registration.objects.filter(owner=request.user, paid=False)
+
+    def get_form_kwargs(self):
+        kwargs = super(TransactionConfirmView, self).get_form_kwargs()
+        kwargs['registrations'] = self.registrations
+        return kwargs
+
+    def form_valid(self, form):
+        response = super(TransactionConfirmView, self).form_valid(form)
+        self.object.owner = self.request.user
+        self.object.save()
+        return response
+
+    @method_decorator(login_required())
+    def get(self, request, *args, **kwargs):
+        registrations = self.get_registrations(request)
+        if registrations.count() == 1:
+            self.object = Transaction.objects.create(owner=request.user)
+            self.object.registrations.add(registrations[0])
+            return HttpResponseRedirect(self.get_success_url())
+        if registrations.count() == 0:
+            raise Http404('No unpaid registrations found')
+        self.registrations = registrations
+        return super(TransactionConfirmView, self).get(request, *args,
+                **kwargs)
+
+    @method_decorator(login_required())
+    def post(self, request, *args, **kwargs):
+        self.registrations = self.get_registrations(request)
+        return super(TransactionConfirmView, self).post(self, request, *args,
+                **kwargs)
+
+class TransactionView(generic.DetailView):
+    model = Transaction
+
+    @method_decorator(login_required)
+    def get(self, request, *args, **kwargs):
+        response = super(TransactionView, self).get(request, *args, **kwargs)
+
+        if not (request.user.pk == self.object.owner.pk or
+                request.user.has_perm('chance.change_transaction')):
+            raise Http404()
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super(TransactionView, self).get_context_data(**kwargs)
+        context['total'] = reduce(lambda x,y: x+y, [r.fee_option.amount for r
+            in self.object.registrations.all()])
+        context['payment_url'] = settings.PAYMENT_POST_URL
+        context['payment_params'] = getattr(settings, 'PAYMENT_PARAMS', {})
+        context['payment_amount_field'] = settings.PAYMENT_AMOUNT_FIELD
+        context['payment_transaction_id_field'] = \
+            settings.PAYMENT_TRANSACTION_ID_FIELD
+        return context
+
+class TransactionNotifyView(generic.View):
+    def get(self, request, *args, **kwargs):
+        return HttpResponseForbidden()
+
+    def post(self, request, *args, **kwargs):
+        transaction = get_object_or_404(Transaction, pk=request.POST.get('transaction_id'))
+        url = settings.PAYMENT_VERIFICATION_URL % transaction.__dict__
+        try:
+            connection = urlopen(url)
+            data = load(connection)
+            connection.close()
+            assert unicode(transaction.id) == data.get('id',False)
+            transaction.closed = data.get('success','0') != '0'
+            transaction.amount_paid = data.get('amount','0')
+            transaction.save()
+        except:
+            log.exception('Error getting transaction details')
+            return HttpResponseBadRequest('Error getting transaction details')
+        return HttpResponse('k thanks bye!')
 

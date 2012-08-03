@@ -3,7 +3,8 @@ from logging import getLogger
 from django import forms
 from django.forms.models import InlineForeignKeyField
 
-from chance.models import Registration, Event, EventChoiceSelection, Talk
+from chance.models import (Registration, Event, EventChoiceSelection, Talk, 
+                            Transaction)
 
 
 
@@ -96,4 +97,19 @@ class TalkSubmissionForm(forms.ModelForm):
         super(TalkSubmissionForm, self).__init__(*args, **kwargs)
         if self.event_object is not None:
             self.fields['event'] = InlineForeignKeyField(self.event_object)
+
+class TransactionConfirmForm(forms.ModelForm):
+    class Meta:
+        model = Transaction
+        fields = ('registrations',)
+
+    def __init__(self, *args, **kwargs):
+        self.registration_qs = kwargs.pop('registrations',
+                Registration.objects.none())
+        super(TransactionConfirmForm, self).__init__(*args, **kwargs)
+
+        self.fields['registrations'] = forms.ModelMultipleChoiceField(
+            label='Registrations', required=True,
+            queryset=self.registration_qs, widget=forms.CheckboxSelectMultiple)
+        self.initial['registrations'] = self.registration_qs.all()
 

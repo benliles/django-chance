@@ -1,6 +1,7 @@
 from django.conf.urls.defaults import *
 from django.contrib.auth.decorators import login_required
 from django.views import generic
+from django.views.decorators.csrf import csrf_exempt
 
 
 from chance import views, models
@@ -31,5 +32,14 @@ urlpatterns = patterns('',
         name='submit_talk'),
     url(r'^(?P<event>\d+)/talks/(?P<pk>\d+)/update/$',
         login_required(views.TalkSubmissionUpdateView.as_view()),
-        name='update_talk')
+        name='update_talk'),
+    url(r'^transaction/confirm/$',
+        views.TransactionConfirmView.as_view(),
+        name='transaction_confirm'),
+    url(r'^transaction/(?P<pk>\d+)/$',
+        views.TransactionView.as_view(),
+        name='transaction'),
+    url(r'^transaction/notify/$',
+        csrf_exempt(views.TransactionNotifyView.as_view()),
+        name='transaction_notify')
 )

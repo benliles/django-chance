@@ -116,6 +116,18 @@ class Talk(models.Model):
         ordering = ('event', 'title',)
 
 
+class Transaction(models.Model):
+    owner = models.ForeignKey(User, related_name='+', null=True, blank=True)
+    registrations = models.ManyToManyField(Registration, related_name='+')
+    amount_paid = models.DecimalField(max_digits=8,decimal_places=2,
+            default='0.00')
+    created = models.DateTimeField(auto_now_add=True)
+    closed = models.BooleanField(default=False)
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('chance:transaction', (), {'pk':self.pk})
+
 try:
     import reversion
 
@@ -128,6 +140,7 @@ try:
     reversion.register(EventChoiceSelection)
     reversion.register(Registration, follow=['selections'])
     reversion.register(Talk)
+    reversion.register(Transaction)
 except ImportError:
     pass
 

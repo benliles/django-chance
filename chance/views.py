@@ -106,7 +106,7 @@ class DeleteRegistrationView(RegistrationFormMixin, generic.DeleteView):
 
     @permalink
     def get_success_url(self):
-        return ('chance_event', (), {'pk': self.object.event.pk},)
+        return ('chance:chance_event', (), {'pk': self.object.event.pk},)
 
 class RegistrationDetailView(EventMixin, generic.DetailView):
     model = Registration
@@ -202,7 +202,8 @@ class TransactionConfirmView(generic.CreateView):
             self.object.registrations.add(registrations[0])
             return HttpResponseRedirect(self.get_success_url())
         if registrations.count() == 0:
-            raise Http404('No unpaid registrations found')
+            messages.error(request, 'No unpaid registrations found')
+            return HttpResponseRedirect('/')
         self.registrations = registrations
         return super(TransactionConfirmView, self).get(request, *args,
                 **kwargs)
@@ -227,14 +228,47 @@ class TransactionView(generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(TransactionView, self).get_context_data(**kwargs)
-        context['total'] = reduce(lambda x,y: x+y, [r.fee_option.amount for r
-            in self.object.registrations.all()])
+        context['total'] = self.object.total
         context['payment_url'] = settings.PAYMENT_POST_URL
         context['payment_params'] = getattr(settings, 'PAYMENT_PARAMS', {})
         context['payment_amount_field'] = settings.PAYMENT_AMOUNT_FIELD
         context['payment_transaction_id_field'] = \
             settings.PAYMENT_TRANSACTION_ID_FIELD
         return context
+
+class TransactionCancel(generic.DeleteView):
+    model = Transaction
+    success_url = '/'
+
+    @method_decorator(login_required)
+    def get(self, request, *args, **kwargs):
+        response = super(TransactionCancel, self).get(request, *args, **kwargs)
+
+        if not (request.user.pk == self.object.owner.pk or 
+                request.user.has_perm('chance.delete_transaction')):
+            raise Http404()
+
+        return response
+
+    @method_decorator(login_required)
+    def post(self, request, *args, **kwargs):
+        self.request = request
+        self.args = args
+        self.kwargs = kwargs
+        self.object = self.get_object()
+
+        if not (request.user.pk == self.object.owner.pk or 
+                request.user.has_perm('chance.delete_transaction')):
+            raise Http404()
+
+        return super(TransactionCancel, self).post(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.closed = True
+        self.object.save()
+        messages.success(request, u'Your transaction has been cancelled')
+        return HttpResponseRedirect(self.get_success_url())
 
 class TransactionNotifyView(generic.View):
     def get(self, request, *args, **kwargs):
@@ -249,7 +283,7 @@ class TransactionNotifyView(generic.View):
             connection.close()
             assert unicode(transaction.id) == data.get('id',False)
             transaction.closed = data.get('success','0') != '0'
-            transaction.amount_paid = data.get('amount','0')
+            transaction.amount_paid = Decimal(data.get('amount','0'))
             transaction.save()
         except:
             log.exception('Error getting transaction details')

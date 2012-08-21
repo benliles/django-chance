@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.db import models
@@ -23,7 +25,7 @@ class Event(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('chance_event', (), {'pk': self.pk})
+        return ('chance:chance_event', (), {'pk': self.pk})
 
     @property
     def registration_open(self):
@@ -85,7 +87,7 @@ class Registration(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('chance_registration', (), {'pk': self.pk, 'event':
+        return ('chance:chance_registration', (), {'pk': self.pk, 'event':
             self.event.pk})
 
     def __unicode__(self):
@@ -124,9 +126,21 @@ class Transaction(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     closed = models.BooleanField(default=False)
 
+    def __unicode__(self):
+        return unicode(self.pk)
+
     @models.permalink
     def get_absolute_url(self):
         return ('chance:transaction', (), {'pk':self.pk})
+
+    @property
+    def total(self):
+        return sum([r.fee_option.amount for r
+            in self.registrations.all()])
+
+    @property
+    def paid_in_full(self):
+        return self.total == self.amount_paid
 
 try:
     import reversion

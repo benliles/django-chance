@@ -1,3 +1,9 @@
+0.3 (2012-08-21)
+----------------
+
+* Transactions
+* Payment gateway integration
+
 0.2 (2012-07-23)
 ----------------
 

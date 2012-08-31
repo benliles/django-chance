@@ -1,3 +1,8 @@
+0.3.1 (2012-08-31)
+------------------
+
+* Added an admin action for even choice summaries
+
 0.3 (2012-08-21)
 ----------------
 

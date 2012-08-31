@@ -4,6 +4,7 @@ except ImportError:
     from django.contrib.admin import ModelAdmin
 
 from django.contrib import admin
+from django.http import HttpResponse
 
 from chance.models import (Event, EventFee, EventChoice, EventChoiceOption,
         Registration, EventChoiceSelection, Talk, Transaction)
@@ -25,6 +26,7 @@ class EventAdmin(ModelAdmin):
         EventChoiceInlineAdmin
     ]
 
+
 class EventChoiceOptionInlineAdmin(admin.TabularInline):
     model = EventChoiceOption
     extra = 1
@@ -35,6 +37,20 @@ class EventChoiceAdmin(ModelAdmin):
         EventChoiceOptionInlineAdmin
     ]
     exclude = ('event',)
+    actions = ['selection_summary']
+
+    def selection_summary(self, request, queryset):
+        response = HttpResponse(mimetype='text/plain')
+        for choice in queryset.all():
+            response.write('%s (%s)\n' % (choice.label, choice.event.name,))
+            for option in choice.options.all():
+                response.write('\t%s: %d\n' % (option.display,
+                    EventChoiceSelection.objects.filter(option=option).count(),))
+            response.write('\n')
+        response.write('\n')
+        return response
+    selection_summary.short_description = u'Summary of user selections for ' \
+            'a choice.'
 
 class RegistrationAdmin(ModelAdmin):
     model = Registration

@@ -286,7 +286,7 @@ class TransactionNotifyView(generic.View):
             transaction.amount_paid = Decimal(data.get('amount','0'))
             transaction.save()
         except:
-            log.exception('Error getting transaction details')
+            log.exception('Error getting transaction details from %s' % (url,))
             return HttpResponseBadRequest('Error getting transaction details')
         return HttpResponse('k thanks bye!')
 

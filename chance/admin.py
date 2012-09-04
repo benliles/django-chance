@@ -63,10 +63,18 @@ class TalkAdmin(ModelAdmin):
 
     def contact(self, obj):
         if obj.owner:
+            name = obj.owner.get_full_name()
+            if not name:
+                name = obj.owner.email
+            if not name:
+                name = obj.owner.username
+            if not name:
+                name = str(obj.owner.pk)
+
             if obj.owner.email:
                 return u'<a href="mailto:%s">%s</a>' % (obj.owner.email,
-                        obj.owner.get_full_name(),)
-            return obj.owner.get_full_name()
+                        name,)
+            return name
         return 'None'
 
     contact.short_description = u'Owner'

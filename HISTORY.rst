@@ -1,3 +1,8 @@
+0.3.3 (2012-09-04)
+------------------
+
+* Modified Talk owner information display for cases where owner has no name
+
 0.3.2 (2012-09-04)
 ------------------
 

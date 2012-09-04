@@ -1,3 +1,8 @@
+0.3.2 (2012-09-04)
+------------------
+
+* Added Talk owner information to list display in Admin
+
 0.3.1 (2012-08-31)
 ------------------
 

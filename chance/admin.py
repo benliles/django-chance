@@ -59,6 +59,18 @@ class RegistrationAdmin(ModelAdmin):
 
 class TalkAdmin(ModelAdmin):
     list_filter = ('event', 'accepted',)
+    list_display = ('title','presenter','contact')
+
+    def contact(self, obj):
+        if obj.owner:
+            if obj.owner.email:
+                return u'<a href="mailto:%s">%s</a>' % (obj.owner.email,
+                        obj.owner.get_full_name(),)
+            return obj.owner.get_full_name()
+        return 'None'
+
+    contact.short_description = u'Owner'
+    contact.allow_tags = True
 
 class TransactionAdmin(ModelAdmin):
     list_display = ('pk', 'owner', 'amount_paid', 'created', 'closed')

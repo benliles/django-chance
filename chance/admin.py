@@ -56,6 +56,18 @@ class RegistrationAdmin(ModelAdmin):
     model = Registration
     exclude = ('event',)
     list_filter = ('event', 'paid',)
+    actions = ['csv_summary']
+
+    def csv_summary(self, request, queryset):
+        import csv
+        response = HttpResponse(mimetype='text/csv')
+        writer = csv.writer(response)
+        for registration in queryset.all():
+            writer.writerow([registration.attendee_name,
+                registration.attendee_email, unicode(registration.paid)])
+        return response
+    csv_summary.short_description = u'Get a CSV Summary'
+
 
 class TalkAdmin(ModelAdmin):
     list_filter = ('event', 'accepted',)

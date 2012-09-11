@@ -142,6 +142,31 @@ class Transaction(models.Model):
     def paid_in_full(self):
         return self.total == self.amount_paid
 
+class Track(models.Model):
+    event = models.ForeignKey(Event, related_name='tracks')
+    name = models.CharField(max_length=64)
+    location = models.CharField(max_length=255, blank=True, null=True)
+
+    def __unicode__(self):
+        return '%s at %s' % (self.name, unicode(self.event),)
+
+class ScheduleItem(models.Model):
+    track = models.ForeignKey(Track, related_name='items')
+    talk = models.ForeignKey(Talk, related_name='+', blank=True, null=True)
+    name = models.CharField(max_length=255, blank=True, null=True)
+    start = models.DateTimeField(blank=True, null=True)
+    end = models.DateTimeField(blank=True, null=True)
+
+    def __unicode__(self):
+        if self.talk:
+            return self.talk.title
+        elif self.name:
+            return self.name
+        return unicode(self.pk)
+
+    class Meta:
+        ordering = ('start','track',)
+
 try:
     import reversion
 
@@ -155,6 +180,8 @@ try:
     reversion.register(Registration, follow=['selections'])
     reversion.register(Talk)
     reversion.register(Transaction)
+    reversion.register(Track, follow=['items','items__talk'])
+    reversion.register(ScheduleItem)
 except ImportError:
     pass
 

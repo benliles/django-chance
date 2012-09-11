@@ -7,7 +7,8 @@ from django.contrib import admin
 from django.http import HttpResponse
 
 from chance.models import (Event, EventFee, EventChoice, EventChoiceOption,
-        Registration, EventChoiceSelection, Talk, Transaction)
+        Registration, EventChoiceSelection, Talk, Transaction, Track,
+        ScheduleItem)
 
 
 
@@ -95,9 +96,24 @@ class TalkAdmin(ModelAdmin):
 class TransactionAdmin(ModelAdmin):
     list_display = ('pk', 'owner', 'amount_paid', 'created', 'closed')
 
+class ScheduleItemInlineAdmin(admin.TabularInline):
+    model = ScheduleItem
+    extra = 3
+
+class TrackAdmin(ModelAdmin):
+    list_display = ('event','name','location',)
+    list_filter = ('event',)
+    inlines = [ScheduleItemInlineAdmin]
+
+class ScheduleItemAdmin(ModelAdmin):
+    list_display = ('track','__unicode__',)
+    list_filter = ('track',)
+
 admin.site.register(Event, EventAdmin)
 admin.site.register(EventChoice, EventChoiceAdmin)
 admin.site.register(Registration, RegistrationAdmin)
 admin.site.register(Talk, TalkAdmin)
 admin.site.register(Transaction, TransactionAdmin)
+admin.site.register(Track, TrackAdmin)
+admin.site.register(ScheduleItem, ScheduleItemAdmin)
 

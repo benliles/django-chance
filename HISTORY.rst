@@ -1,3 +1,10 @@
+0.3.4 (2012-09-11)
+------------------
+
+* Added a CSV summary admin action for registration
+* Added event tracks and schedule items
+* Added a schedule view for an event
+
 0.3.3 (2012-09-04)
 ------------------
 

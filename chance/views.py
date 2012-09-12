@@ -15,7 +15,8 @@ from django.views import generic
 
 from chance.forms import (RegistrationForm, TalkSubmissionForm,
                             TransactionConfirmForm)
-from chance.models import Event, Registration, Talk, Transaction
+from chance.models import (Event, Registration, Talk, Transaction, Track,
+                           ScheduleItem)
 
 
 
@@ -289,4 +290,11 @@ class TransactionNotifyView(generic.View):
             log.exception('Error getting transaction details from %s' % (url,))
             return HttpResponseBadRequest('Error getting transaction details')
         return HttpResponse('k thanks bye!')
+
+class ScheduleView(EventMixin, generic.ListView):
+    model = ScheduleItem
+
+    def get_queryset(self):
+        return ScheduleItem.objects.filter(track__in=self.event.tracks.all(),
+                start__isnull=False, end__isnull=False)
 

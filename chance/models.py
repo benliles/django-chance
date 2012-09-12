@@ -157,6 +157,12 @@ class ScheduleItem(models.Model):
     start = models.DateTimeField(blank=True, null=True)
     end = models.DateTimeField(blank=True, null=True)
 
+    @property
+    def start_date(self):
+        if self.start:
+            return self.start.date()
+        return None
+
     def __unicode__(self):
         if self.talk:
             return self.talk.title

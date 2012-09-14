@@ -64,8 +64,13 @@ class RegistrationAdmin(ModelAdmin):
         response = HttpResponse(mimetype='text/csv')
         writer = csv.writer(response)
         for registration in queryset.all():
-            writer.writerow([registration.attendee_name,
-                registration.attendee_email, unicode(registration.paid)])
+            writer.writerow([
+                registration.attendee_name,
+                registration.attendee_email,
+                unicode(registration.paid)
+            ] + [
+                selection.option.display for selection in
+                registration.selections.order_by('option__choice').all()])
         return response
     csv_summary.short_description = u'Get a CSV Summary'
 

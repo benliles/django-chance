@@ -1,3 +1,8 @@
+0.3.5 (2012-09-14)
+------------------
+
+* Updated CSV summary of registration to include choices
+
 0.3.4 (2012-09-11)
 ------------------
 

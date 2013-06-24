@@ -90,12 +90,12 @@ class Registration(models.Model):
     def get_absolute_url(self):
         if self.event.slug:
             try:
-                return reverse('chance:chance_registration_slug', (), {'pk':
+                return reverse('slug:registration', kwargs={'pk':
                     self.pk, 'slug': self.event.slug})
-            except:
-                pass
-        return reverse('chance:chance_registration', (), {'pk': self.pk, 'event':
-            self.event.pk})
+            except Exception, e:
+                raise e
+        return reverse('registration', kwargs={'pk': self.pk, 'event':
+            self.event.pk}, current_app='chance')
 
     def __unicode__(self):
         return u'Registration for %s by %s' % (self.event.name,
@@ -117,9 +117,14 @@ class Talk(models.Model):
     def __unicode__(self):
         return self.title
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('chance:talk', (), {'pk': self.pk, 'event': self.event.pk})
+        if self.event.slug:
+            try:
+                return reverse('slug:talk', kwargs={'pk': self.pk, 'slug':
+                    self.event.slug})
+            except Exception, e:
+                raise e
+        return reverse('talk', kwargs={'pk': self.pk, 'event': self.event.pk})
 
     class Meta:
         ordering = ('event', 'title',)
@@ -138,7 +143,7 @@ class Transaction(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('chance:transaction', (), {'pk':self.pk})
+        return ('transaction', (), {'pk':self.pk})
 
     @property
     def total(self):

@@ -5,6 +5,7 @@ from urllib2 import urlopen
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db.models import permalink
 from django.http import (HttpResponseForbidden, HttpResponseRedirect, 
                          HttpResponse, Http404, HttpResponseBadRequest)
@@ -119,9 +120,16 @@ class DeleteRegistrationView(RegistrationFormMixin, generic.DeleteView):
         return super(DeleteRegistrationView, self).post(request, *args, **kwargs)
 
 
-    @permalink
     def get_success_url(self):
-        return ('chance:chance_event', (), {'pk': self.object.event.pk},)
+        if self.object.event.slug:
+            try:
+                return reverse('slug:registrations', kwargs={'slug':
+                    self.object.event.slug})
+            except:
+                pass
+
+        return reverse('registrations', kwargs={'event':
+            self.object.event.pk})
 
 class RegistrationDetailView(EventMixin, generic.DetailView):
     model = Registration
@@ -150,8 +158,16 @@ class RegistrationListView(EventMixin, generic.ListView):
 class TalkListView(EventMixin, generic.ListView):
     model = Talk
 
+    def get_queryset(self):
+        return super(TalkListView,
+                self).get_queryset().filter(event=self.event)
+
 class TalkDetailView(EventMixin, generic.DetailView):
     model = Talk
+
+    def get_queryset(self):
+        return super(TalkDetailView,
+                self).get_queryset().filter(event=self.event)
 
 class TalkSubmissionCreateView(EventRelatedFormMixin, generic.CreateView):
     model = Talk

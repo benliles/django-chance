@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.db import models
 
 
@@ -19,6 +20,7 @@ class Event(models.Model):
     ends = models.DateTimeField()
     registration_limit = models.PositiveSmallIntegerField(null=True,
             blank=True, default=0)
+    slug = models.SlugField(max_length=16, null=True, blank=True)
 
     def __unicode__(self):
         return self.name
@@ -85,9 +87,14 @@ class Registration(models.Model):
     class Meta:
         ordering = ('created',)
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('chance:chance_registration', (), {'pk': self.pk, 'event':
+        if self.event.slug:
+            try:
+                return reverse('chance:chance_registration_slug', (), {'pk':
+                    self.pk, 'slug': self.event.slug})
+            except:
+                pass
+        return reverse('chance:chance_registration', (), {'pk': self.pk, 'event':
             self.event.pk})
 
     def __unicode__(self):
@@ -179,14 +186,13 @@ try:
     reversion.register(EventChoiceOption)
     reversion.register(EventChoice, follow=['options'])
     reversion.register(EventFee)
-    reversion.register(Event, follow=['fee_options', 'choices',
-        'choices__options'])
+    reversion.register(Event, follow=['fee_options', 'choices'])
 
     reversion.register(EventChoiceSelection)
     reversion.register(Registration, follow=['selections'])
     reversion.register(Talk)
     reversion.register(Transaction)
-    reversion.register(Track, follow=['items','items__talk'])
+    reversion.register(Track, follow=['items'])
     reversion.register(ScheduleItem)
 except ImportError:
     pass

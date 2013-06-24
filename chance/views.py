@@ -24,13 +24,21 @@ log = getLogger('chance.views')
 
 class EventMixin(object):
     def get(self, request, *args, **kwargs):
-        self.event = get_object_or_404(Event, pk=kwargs.get('event', None))
-        del kwargs['event']
+        if 'slug' in kwargs:
+            self.event = get_object_or_404(Event, slug=kwargs.get('slug'))
+            del kwargs['slug']
+        else:
+            self.event = get_object_or_404(Event, pk=kwargs.get('event', None))
+            del kwargs['event']
         return super(EventMixin, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self.event = get_object_or_404(Event, pk=kwargs.get('event', None))
-        del kwargs['event']
+        if 'slug' in kwargs:
+            self.event = get_object_or_404(Event, slug=kwargs.get('slug'))
+            del kwargs['slug']
+        else:
+            self.event = get_object_or_404(Event, pk=kwargs.get('event', None))
+            del kwargs['event']
         return super(EventMixin, self).post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -60,7 +68,10 @@ class RegistrationFormMixin(EventRelatedFormMixin):
 
 class CreateRegistrationView(RegistrationFormMixin, generic.CreateView):
     def get(self, request, *args, **kwargs):
-        self.event = get_object_or_404(Event, pk=kwargs.get('event', None))
+        if 'slug' in kwargs:
+            self.event = get_object_or_404(Event, slug=kwargs.get('slug'))
+        else:
+            self.event = get_object_or_404(Event, pk=kwargs.get('event', None))
         if not self.event.registration_open:
             messages.error(request, u'%s registration is no longer available' %
                     (self.event.name,))
@@ -69,7 +80,10 @@ class CreateRegistrationView(RegistrationFormMixin, generic.CreateView):
                 **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self.event = get_object_or_404(Event, pk=kwargs.get('event', None))
+        if 'slug' in kwargs:
+            self.event = get_object_or_404(Event, slug=kwargs.get('slug'))
+        else:
+            self.event = get_object_or_404(Event, pk=kwargs.get('event', None))
         if not self.event.registration_open:
             messages.error(request, u'%s registration is no longer available' %
                     (self.event.name,))

@@ -92,6 +92,17 @@ class CreateRegistrationView(RegistrationFormMixin, generic.CreateView):
         return super(CreateRegistrationView, self).post(request, *args,
                 **kwargs)
 
+    def get_success_url(self):
+        try:
+            if self.event.slug:
+                return reverse('slug:registrations', kwargs={'slug':
+                    self.event.slug})
+            return reverse('registrations', kwargs={'event':
+                self.event.pk})
+        except:
+            return super(CreateRegistrationView, self).get_success_url()
+
+
 class UpdateRegistrationView(RegistrationFormMixin, generic.UpdateView):
     pass
 

@@ -1,3 +1,8 @@
+0.4.1 (2013-07-17)
+------------------
+
+* Redirect after registration goes to a users registrations
+
 0.4 (2013-06-24)
 ----------------
 
